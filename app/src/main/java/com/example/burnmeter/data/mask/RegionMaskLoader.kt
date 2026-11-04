@@ -1,10 +1,10 @@
 package com.example.burnmeter.data.mask
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.annotation.VisibleForTesting
 import com.example.burnmeter.di.IoDispatcher
+import com.example.burnmeter.domain.models.BodyView
 import com.example.burnmeter.domain.models.MaskPalette
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -12,7 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-private const val MASK_FILENAME = "masks/front_mask.png"
+private const val BACK_MASK_FILENAME = "masks/back_mask.png"
+private const val FRONT_MASK_FILENAME = "masks/front_mask.png"
 
 
 class RegionMaskLoader @Inject constructor(
@@ -20,9 +21,13 @@ class RegionMaskLoader @Inject constructor(
     private val palette: MaskPalette,
     @IoDispatcher private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
-    suspend fun decodeMask(): Triple<ByteArray, Int, Int> {
+    suspend fun decodeMask(bodyView: BodyView): Triple<ByteArray, Int, Int> {
+        val filename = when (bodyView) {
+            BodyView.FRONT -> FRONT_MASK_FILENAME
+            BodyView.BACK -> BACK_MASK_FILENAME
+        }
         val bitmap = withContext(dispatcher) {
-            context.assets.open(MASK_FILENAME).use { stream ->
+            context.assets.open(filename).use { stream ->
                 BitmapFactory.decodeStream(stream)
             }
         }

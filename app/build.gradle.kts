@@ -67,8 +67,10 @@ dependencies {
 
     // test
     testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // viewmodel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    testImplementation(kotlin("test"))
 
 }

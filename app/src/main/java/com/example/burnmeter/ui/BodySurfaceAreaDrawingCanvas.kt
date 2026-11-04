@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -18,7 +19,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.toSize
-import com.example.burnmeter.domain.models.DrawingPoint
+import com.example.burnmeter.domain.models.BodyView
+import com.example.burnmeter.domain.models.DrawingStroke
 import com.example.burnmeter.drawing.CanvasRenderer
 import com.example.burnmeter.drawing.DrawingPaintFactory
 import com.example.burnmeter.drawing.calculateCanvasTransform
@@ -27,11 +29,19 @@ import com.example.burnmeter.drawing.calculateImageCoordinates
 @Composable
 fun BodySurfaceAreaDrawingCanvas(
     @DrawableRes image: Int,
+    strokes: List<DrawingStroke>,
+    onAddStroke: (Offset) -> Unit,
+    onExtendStroke: (Offset) -> Unit,
+    onEndStroke: () -> Unit,
+    onBitmapLoaded: (Int, Int) -> Unit,
     modifier: Modifier = Modifier,
-    drawingState: DrawingState = rememberDrawingState()
 ) {
     val renderer = remember { CanvasRenderer(DrawingPaintFactory()) }
     val imageBitmap = ImageBitmap.imageResource(image)
+
+    LaunchedEffect(imageBitmap) {
+        onBitmapLoaded(imageBitmap.width, imageBitmap.height)
+    }
 
     Canvas(
         modifier = modifier
@@ -46,8 +56,7 @@ fun BodySurfaceAreaDrawingCanvas(
                             Size(imageBitmap.width.toFloat(), imageBitmap.height.toFloat()),
                             it
                         )
-                        val point = DrawingPoint(imageCoordinates)
-                        drawingState.startStroke(point)
+                        onAddStroke(imageCoordinates)
                     },
                     onDrag = { change, _ ->
                         val imageCoordinates = calculateImageCoordinates(
@@ -55,11 +64,10 @@ fun BodySurfaceAreaDrawingCanvas(
                             Size(imageBitmap.width.toFloat(), imageBitmap.height.toFloat()),
                             change.position
                         )
-                        val point = DrawingPoint(imageCoordinates)
-                        drawingState.extendStroke(point)
+                        onExtendStroke(imageCoordinates)
                     },
                     onDragEnd = {
-                        drawingState.endStroke()
+                        onEndStroke()
                     }
                 )
             }
@@ -75,7 +83,7 @@ fun BodySurfaceAreaDrawingCanvas(
                 clipRect(0f, 0f, imageBitmap.width.toFloat(), imageBitmap.height.toFloat()) {
                     drawImage(imageBitmap)
                     with(renderer) {
-                        drawStrokes(drawingState.strokes)
+                        drawStrokes(strokes)
                     }
                     drawImage(
                         imageBitmap,
