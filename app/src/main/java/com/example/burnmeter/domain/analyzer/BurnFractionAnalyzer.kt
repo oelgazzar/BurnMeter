@@ -2,6 +2,8 @@ package com.example.burnmeter.domain.analyzer
 
 import com.example.burnmeter.domain.mask.BurnMaskGenerator
 import com.example.burnmeter.domain.models.BodyView
+import com.example.burnmeter.domain.models.BurnAssessmentResult
+import com.example.burnmeter.domain.models.RegionBurnFraction
 import com.example.burnmeter.domain.models.DrawingStroke
 import com.example.burnmeter.domain.repository.MaskDataRepository
 import javax.inject.Inject
@@ -15,8 +17,7 @@ class BurnFractionAnalyzer @Inject constructor(
         width: Int,
         height: Int,
         bodyView: BodyView
-    ):
-    Map<Byte, Float> {
+    ): BurnAssessmentResult {
         val maskData = maskDataRepository.getMaskData(bodyView)
         val burnMask = burnMaskGenerator.generateBurnMask(strokes, width, height)
         require(maskData.width == width && maskData.height == height) {
@@ -35,6 +36,14 @@ class BurnFractionAnalyzer @Inject constructor(
             regionBurntPixels[regionId] = regionBurntPixels.getOrDefault(regionId, 0) + 1
         }
 
-        return regionBurntPixels.map { it.key to it.value.toFloat() / regionPixelCount.getValue(it.key) }.toMap()
+        return BurnAssessmentResult(
+            result = regionBurntPixels.map {
+                RegionBurnFraction(
+                    regionId = it.key,
+                    bodyView = bodyView,
+                    fraction = it.value.toFloat() / regionPixelCount.getValue(it.key)
+                )
+            }
+        )
     }
 }

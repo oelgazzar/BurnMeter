@@ -4,6 +4,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.burnmeter.domain.analyzer.BurnFractionAnalyzer
+import com.example.burnmeter.domain.analyzer.calculateTBSA
+import com.example.burnmeter.domain.analyzer.getRegionBurnPercentages
+import com.example.burnmeter.domain.analyzer.toRegionBurnPercentages
 import com.example.burnmeter.domain.models.BodyView
 import com.example.burnmeter.domain.models.BurnAssessmentResult
 import com.example.burnmeter.domain.models.DrawingStroke
@@ -18,6 +21,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.collections.emptyMap
 
 @HiltViewModel
 class DrawingViewModel @Inject constructor(
@@ -45,14 +49,14 @@ class DrawingViewModel @Inject constructor(
     )
 
 
-    private val _assessmentResult = MutableStateFlow(emptyMap<BodyView, BurnAssessmentResult>())
-    val assessmentResult = _assessmentResult.map {
-        it.values.fold(BurnAssessmentResult(emptyMap())) { acc, result -> acc + result }
+    private val _assessmentResult = MutableStateFlow<Map<BodyView, BurnAssessmentResult>>(emptyMap())
+    val assessmentResult = _assessmentResult.map { groupedResults ->
+        groupedResults.values.flatMap { it.result }.toRegionBurnPercentages()
     }
         .stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
-            BurnAssessmentResult(emptyMap())
+            emptyMap()
         )
 
 
@@ -88,7 +92,11 @@ class DrawingViewModel @Inject constructor(
                     height,
                     _currentBodyView.value
                 )
-                _assessmentResult.value += (_currentBodyView.value to BurnAssessmentResult(result))
+                _assessmentResult.update {
+                    it + (_currentBodyView.value to result)
+                }
+                println(assessmentResult.value)
+                println(calculateTBSA(assessmentResult.value))
             } catch (e: Exception) {
                 Log.e("DrawingViewModel", "Error calculating burn fraction $e")
             }

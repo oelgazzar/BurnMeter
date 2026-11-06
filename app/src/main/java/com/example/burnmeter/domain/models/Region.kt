@@ -9,15 +9,15 @@ import com.example.burnmeter.domain.models.Region.POSTERIOR_TRUNK
 import com.example.burnmeter.domain.models.Region.RIGHT_ARM
 import com.example.burnmeter.domain.models.Region.RIGHT_LEG
 
-enum class Region(val id: Byte, val displayText: String, val percentage: Int) {
-    HEAD_AND_NECK(1, "Head & Neck", 9),
-    RIGHT_ARM(2, "Right Arm", 9),
-    LEFT_ARM(3, "Left Arm", 9),
-    RIGHT_LEG(4, "Right Leg", 18),
-    LEFT_LEG(5, "Left Leg", 18),
-    ANTERIOR_TRUNK(6, "Anterior Trunk", 18),
-    POSTERIOR_TRUNK(7, "Posterior Trunk", 18),
-    PERINEUM(8, "Perineum", 1)
+enum class Region(val id: Byte, val displayText: String, val percentage: Int, val surfaces: Int) {
+    HEAD_AND_NECK(1, "Head & Neck", 9, 2),
+    RIGHT_ARM(2, "Right Arm", 9, 2),
+    LEFT_ARM(3, "Left Arm", 9, 2),
+    RIGHT_LEG(4, "Right Leg", 18, 2),
+    LEFT_LEG(5, "Left Leg", 18, 2),
+    ANTERIOR_TRUNK(6, "Anterior Trunk", 18, 1),
+    POSTERIOR_TRUNK(7, "Posterior Trunk", 18, 1),
+    PERINEUM(8, "Perineum", 1, 1)
 }
 
 fun getRegionById(id: Byte): Region {
