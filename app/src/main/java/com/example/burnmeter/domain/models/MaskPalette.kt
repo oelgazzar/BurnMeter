@@ -10,7 +10,8 @@ fun maskPalette(
     leftArm: Int,
     rightLeg: Int,
     leftLeg: Int,
-    trunk: Int,
+    anteriorTrunk: Int,
+    posteriorTrunk: Int,
     perineum: Int,
 ): MaskPalette {
     return MaskPalette(
@@ -20,7 +21,8 @@ fun maskPalette(
             leftArm to Region.LEFT_ARM.id,
             rightLeg to Region.RIGHT_LEG.id,
             leftLeg to Region.LEFT_LEG.id,
-            trunk to Region.ANTERIOR_TRUNK.id,
+            anteriorTrunk to Region.ANTERIOR_TRUNK.id,
+            posteriorTrunk to Region.POSTERIOR_TRUNK.id,
             perineum to Region.PERINEUM.id,
         )
     )

@@ -23,6 +23,7 @@ object PaletteModule {
         Color.Magenta.toArgb(),
         Color.Cyan.toArgb(),
         0xFFF0F0F0.toInt(),
+        0xFF0F0F0F.toInt(),
         Color.Yellow.toArgb(),
     )
 }

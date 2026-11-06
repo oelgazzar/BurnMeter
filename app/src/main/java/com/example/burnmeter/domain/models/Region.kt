@@ -1,12 +1,34 @@
 package com.example.burnmeter.domain.models
 
-enum class Region(val id: Byte, val displayText: String) {
-    HEAD_AND_NECK(1, "Head & Neck"),
-    RIGHT_ARM(2, "Right Arm"),
-    LEFT_ARM(3, "Left Arm"),
-    RIGHT_LEG(4, "Right Leg"),
-    LEFT_LEG(5, "Left Leg"),
-    ANTERIOR_TRUNK(6, "Anterior Trunk"),
-    POSTERIOR_TRUNK(7, "Posterior Trunk"),
-    PERINEUM(8, "Perineum"),
+import com.example.burnmeter.domain.models.Region.ANTERIOR_TRUNK
+import com.example.burnmeter.domain.models.Region.HEAD_AND_NECK
+import com.example.burnmeter.domain.models.Region.LEFT_ARM
+import com.example.burnmeter.domain.models.Region.LEFT_LEG
+import com.example.burnmeter.domain.models.Region.PERINEUM
+import com.example.burnmeter.domain.models.Region.POSTERIOR_TRUNK
+import com.example.burnmeter.domain.models.Region.RIGHT_ARM
+import com.example.burnmeter.domain.models.Region.RIGHT_LEG
+
+enum class Region(val id: Byte, val displayText: String, val percentage: Int) {
+    HEAD_AND_NECK(1, "Head & Neck", 9),
+    RIGHT_ARM(2, "Right Arm", 9),
+    LEFT_ARM(3, "Left Arm", 9),
+    RIGHT_LEG(4, "Right Leg", 18),
+    LEFT_LEG(5, "Left Leg", 18),
+    ANTERIOR_TRUNK(6, "Anterior Trunk", 18),
+    POSTERIOR_TRUNK(7, "Posterior Trunk", 18),
+    PERINEUM(8, "Perineum", 1)
+}
+
+fun getRegionById(id: Byte): Region {
+    return when(id) {
+        1.toByte() -> HEAD_AND_NECK
+        2.toByte() -> RIGHT_ARM
+        3.toByte() -> LEFT_ARM
+        4.toByte() -> RIGHT_LEG
+        5.toByte() -> LEFT_LEG
+        6.toByte() -> ANTERIOR_TRUNK
+        7.toByte() -> POSTERIOR_TRUNK
+        else -> PERINEUM
+    }
 }
