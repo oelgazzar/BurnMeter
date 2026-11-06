@@ -67,7 +67,6 @@ fun App() {
                 onAddStroke = viewModel::onAddStroke,
                 onBitmapLoaded = viewModel::onBitmapLoaded,
                 modifier = Modifier
-                    .border(1.dp, Color.Red)
                     .weight(1f)
                     .fillMaxHeight()
             )

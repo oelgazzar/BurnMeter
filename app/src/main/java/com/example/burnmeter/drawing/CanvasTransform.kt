@@ -26,7 +26,8 @@ fun calculateCanvasTransform(
 
     val offset = Offset(
         x = (canvasSize.width - imageSize.width * scale) / 2f,
-        y = (canvasSize.height - imageSize.height * scale) / 2f
+        y = 0f
+//        y = (canvasSize.height - imageSize.height * scale) / 2f
     )
 
     return CanvasTransform(
