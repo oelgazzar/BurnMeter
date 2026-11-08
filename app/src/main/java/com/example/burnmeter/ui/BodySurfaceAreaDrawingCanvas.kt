@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.toSize
-import com.example.burnmeter.domain.models.BodyView
+import com.example.burnmeter.domain.models.DrawingMode
 import com.example.burnmeter.domain.models.DrawingPoint
 import com.example.burnmeter.domain.models.DrawingStroke
 import com.example.burnmeter.drawing.CanvasRenderer
@@ -31,8 +31,10 @@ import com.example.burnmeter.drawing.calculateImageCoordinates
 @Composable
 fun BodySurfaceAreaDrawingCanvas(
     @DrawableRes image: Int,
+    mode: DrawingMode,
     strokes: List<DrawingStroke>,
     onAddStroke: (DrawingStroke) -> Unit,
+    onDeleteStroke: (Offset) -> Unit,
     onBitmapLoaded: (Int, Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -49,7 +51,7 @@ fun BodySurfaceAreaDrawingCanvas(
             .graphicsLayer {
                 compositingStrategy = CompositingStrategy.Offscreen
             }
-            .pointerInput(Unit) {
+            .pointerInput(mode) {
                 detectDragGestures(
                     onDragStart = {
                         val imageCoordinates = calculateImageCoordinates(
@@ -57,7 +59,10 @@ fun BodySurfaceAreaDrawingCanvas(
                             Size(imageBitmap.width.toFloat(), imageBitmap.height.toFloat()),
                             it
                         )
-                        activeStrokePoints.add(DrawingPoint(imageCoordinates))
+                        when (mode) {
+                            DrawingMode.Paint -> activeStrokePoints.add(DrawingPoint(imageCoordinates))
+                            DrawingMode.Erase -> onDeleteStroke(imageCoordinates)
+                        }
                     },
                     onDrag = { change, _ ->
                         val imageCoordinates = calculateImageCoordinates(
@@ -65,11 +70,16 @@ fun BodySurfaceAreaDrawingCanvas(
                             Size(imageBitmap.width.toFloat(), imageBitmap.height.toFloat()),
                             change.position
                         )
-                        activeStrokePoints.add(DrawingPoint(imageCoordinates))
+                        when (mode) {
+                            DrawingMode.Paint -> activeStrokePoints.add(DrawingPoint(imageCoordinates))
+                            DrawingMode.Erase -> onDeleteStroke(imageCoordinates)
+                        }
                     },
                     onDragEnd = {
-                        onAddStroke(DrawingStroke(activeStrokePoints.toList()))
-                        activeStrokePoints.clear()
+                        if (mode == DrawingMode.Paint) {
+                            onAddStroke(DrawingStroke(activeStrokePoints.toList()))
+                            activeStrokePoints.clear()
+                        }
                     }
                 )
             }

@@ -1,6 +1,7 @@
 package com.example.burnmeter.ui
 
 import android.util.Log
+import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.burnmeter.domain.analyzer.BurnFractionAnalyzer
@@ -9,7 +10,9 @@ import com.example.burnmeter.domain.analyzer.getRegionBurnPercentages
 import com.example.burnmeter.domain.analyzer.toRegionBurnPercentages
 import com.example.burnmeter.domain.models.BodyView
 import com.example.burnmeter.domain.models.BurnAssessmentResult
+import com.example.burnmeter.domain.models.DrawingMode
 import com.example.burnmeter.domain.models.DrawingStroke
+import com.example.burnmeter.drawing.findStrokeToErase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,6 +51,8 @@ class DrawingViewModel @Inject constructor(
         emptyList()
     )
 
+    private val _mode = MutableStateFlow(DrawingMode.Paint)
+    val mode = _mode.asStateFlow()
 
     private val _assessmentResult = MutableStateFlow<Map<BodyView, BurnAssessmentResult>>(emptyMap())
     val assessmentResult = _assessmentResult.map { groupedResults ->
@@ -101,5 +106,22 @@ class DrawingViewModel @Inject constructor(
                 Log.e("DrawingViewModel", "Error calculating burn fraction $e")
             }
         }
+    }
+
+    fun onDeleteStroke(position: Offset) {
+        val strokeIndex = findStrokeToErase(position, strokes.value, 10f)
+        if (strokeIndex != null) {
+            val updatedStrokes = strokes.value.toMutableList()
+            updatedStrokes.removeAt(strokeIndex)
+            when (_currentBodyView.value) {
+                BodyView.FRONT -> _frontStrokes.value = updatedStrokes
+                BodyView.BACK -> _backStrokes.value = updatedStrokes
+            }
+            calculateBurnFraction()
+        }
+    }
+
+    fun updateMode(mode: DrawingMode) {
+        _mode.value = mode
     }
 }

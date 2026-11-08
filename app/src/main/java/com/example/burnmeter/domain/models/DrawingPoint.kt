@@ -7,4 +7,8 @@ data class DrawingPoint(
     val y: Float
 ) {
     constructor(position: Offset) : this(position.x, position.y)
+
+    operator fun minus(offset: Offset): Offset {
+        return Offset(x - offset.x, y - offset.y)
+    }
 }
